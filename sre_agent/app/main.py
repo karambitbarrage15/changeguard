@@ -8,7 +8,7 @@ from pydantic import BaseModel, Field
 from typing import Dict, Any, List, Optional
 import logging
 
-from app.agent import sre_agent
+from .agent import sre_agent
 
 logging.basicConfig(
     level=logging.INFO,

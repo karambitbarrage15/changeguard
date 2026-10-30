@@ -12,7 +12,7 @@ def search_logs(keyword: str = "", level: str = "ERROR", limit: int = 15) -> Lis
     """Search service logs for error traces, exceptions, and anomalies."""
     logs = []
     try:
-        with httpx.Client(timeout=2.0) as client:
+        with httpx.Client(timeout=0.2) as client:
             resp = client.get(f"{TELEMETRY_URL}/chaos/status")
             if resp.status_code == 200:
                 data = resp.json()
@@ -26,7 +26,21 @@ def search_logs(keyword: str = "", level: str = "ERROR", limit: int = 15) -> Lis
     except Exception:
         pass
 
-    # Provide synthetic context if clean
+    # In-process fallback
+    if not logs:
+        try:
+            from services.telemetry_service.app.chaos import chaos_controller
+            for inc in chaos_controller.active_incidents:
+                logs.append({
+                    "level": "ERROR" if "SPIKE" in inc.get("type", "") else "WARNING",
+                    "message": f"[{inc.get('type')}] {inc.get('description')}",
+                    "timestamp": inc.get("timestamp"),
+                    "source": "telemetry-service"
+                })
+        except Exception:
+            pass
+
+    # Provide synthetic baseline log if clean
     if not logs:
         logs.append({
             "level": "INFO",

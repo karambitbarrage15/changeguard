@@ -8,8 +8,8 @@ import httpx
 import logging
 from typing import Dict, Any, List, Optional
 
-from app.planner import InvestigationPlanner
-from app.report import IncidentReportGenerator
+from .planner import InvestigationPlanner
+from .report import IncidentReportGenerator
 
 logger = logging.getLogger("changeguard.sre_agent")
 
@@ -22,10 +22,11 @@ class SREAgent:
         self.investigation_history: List[Dict[str, Any]] = []
         self.live_events: List[Dict[str, Any]] = []
         self.current_state: str = "IDLE"
+        self._local_rag = None
 
     def _call_mcp(self, tool_name: str, args: Dict[str, Any] = None) -> Any:
         try:
-            with httpx.Client(timeout=5.0) as client:
+            with httpx.Client(timeout=0.3) as client:
                 resp = client.post(
                     f"{MCP_SERVER_URL}/mcp/call",
                     json={"tool": tool_name, "arguments": args or {}}
@@ -33,22 +34,42 @@ class SREAgent:
                 if resp.status_code == 200:
                     data = resp.json()
                     return data.get("output")
+        except Exception:
+            pass
+
+        # In-process fallback if MCP server is not running as a standalone HTTP daemon
+        try:
+            from mcp_server.app.main import TOOL_REGISTRY
+            tool_fn = TOOL_REGISTRY.get(tool_name)
+            if tool_fn:
+                return tool_fn(**(args or {}))
         except Exception as e:
-            logger.error(f"MCP call to {tool_name} failed: {e}")
-            return {"error": str(e)}
+            logger.debug(f"Direct MCP fallback failed for {tool_name}: {e}")
+
         return {}
 
     def _query_rag(self, query_text: str) -> List[Dict[str, Any]]:
         try:
-            with httpx.Client(timeout=4.0) as client:
+            with httpx.Client(timeout=0.3) as client:
                 resp = client.post(
                     f"{RAG_ENGINE_URL}/rag/query",
                     json={"query": query_text, "top_k": 2}
                 )
                 if resp.status_code == 200:
                     return resp.json().get("matches", [])
+        except Exception:
+            pass
+
+        # In-process fallback if RAG server is not running as standalone HTTP daemon
+        try:
+            if not self._local_rag:
+                from rag_engine.app.retriever import RAGRetriever
+                kb_dir = os.path.abspath(os.path.join(os.path.dirname(__file__), "../../rag_engine/knowledge_base"))
+                self._local_rag = RAGRetriever(kb_dir)
+            return self._local_rag.retrieve(query_text, top_k=2)
         except Exception as e:
-            logger.error(f"RAG query failed: {e}")
+            logger.debug(f"Direct RAG fallback failed: {e}")
+
         return []
 
     def log_event(self, step_type: str, message: str, data: Any = None):
@@ -77,7 +98,7 @@ class SREAgent:
         # Step 1: Alerts
         self.log_event("THOUGHT", "Checking Prometheus alerts to determine active degradation conditions...")
         active_alerts = self._call_mcp("get_active_alerts")
-        if active_alerts:
+        if isinstance(active_alerts, list) and active_alerts:
             alerts_found = active_alerts
             self.log_event("TOOL_RESULT", f"Found {len(active_alerts)} active alerts", active_alerts)
         else:
@@ -164,7 +185,7 @@ class SREAgent:
         self.log_event("TOOL_RESULT", "Rollback executed", rollback_result)
 
         self.log_event("THOUGHT", "Verifying post-rollback health and latency normalization...")
-        time.sleep(1.0)
+        time.sleep(0.1)
         verify_result = self._call_mcp("verify_health", {"service_name": "connected-vehicle-telemetry"})
         self.log_event("TOOL_RESULT", "Health verification complete", verify_result)
 

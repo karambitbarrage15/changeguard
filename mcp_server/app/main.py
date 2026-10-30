@@ -8,10 +8,10 @@ from pydantic import BaseModel, Field
 from typing import Dict, Any, List, Optional
 import logging
 
-from app.tools.git_tools import git_log, git_diff_commit, git_blame
-from app.tools.prometheus_tools import query_prometheus, get_active_alerts
-from app.tools.log_tools import search_logs
-from app.tools.container_tools import list_containers, inspect_container, trigger_rollback, verify_health
+from .tools.git_tools import git_log, git_diff_commit, git_blame
+from .tools.prometheus_tools import query_prometheus, get_active_alerts
+from .tools.log_tools import search_logs
+from .tools.container_tools import list_containers, inspect_container, trigger_rollback, verify_health
 
 logging.basicConfig(
     level=logging.INFO,

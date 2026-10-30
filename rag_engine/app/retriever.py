@@ -5,7 +5,7 @@ import os
 import glob
 import re
 from typing import List, Dict, Any
-from app.embeddings import DocumentIndex
+from .embeddings import DocumentIndex
 
 class RAGRetriever:
     def __init__(self, knowledge_base_dir: str):
