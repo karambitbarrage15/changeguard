@@ -10,6 +10,12 @@ import subprocess
 import signal
 from typing import List, Dict, Any
 
+# Ensure UTF-8 output on Windows consoles
+if hasattr(sys.stdout, "reconfigure"):
+    sys.stdout.reconfigure(encoding='utf-8', errors='replace')
+if hasattr(sys.stderr, "reconfigure"):
+    sys.stderr.reconfigure(encoding='utf-8', errors='replace')
+
 SERVICES = [
     {
         "name": "telemetry-service",
@@ -52,7 +58,7 @@ SERVICES = [
 def main():
     root_dir = os.path.abspath(os.path.join(os.path.dirname(__file__), ".."))
     print("=" * 70)
-    print("  🛡️  CHANGEGUARD PLATFORM SUPERVISOR")
+    print("  [+] CHANGEGUARD PLATFORM SUPERVISOR")
     print("  Starting all 6 services locally...")
     print("=" * 70)
 
@@ -71,7 +77,7 @@ def main():
 
     for svc in SERVICES:
         svc_cwd = os.path.join(root_dir, svc["cwd"])
-        print(f"🚀 Spawning {svc['name']:<20} -> http://localhost:{svc['port']}")
+        print(f"[*] Spawning {svc['name']:<20} -> http://localhost:{svc['port']}")
         env = os.environ.copy()
         env["PYTHONPATH"] = f"{svc_cwd}{os.pathsep}{env.get('PYTHONPATH', '')}"
 
@@ -85,14 +91,14 @@ def main():
         processes[svc["name"]] = p
 
     print("\n" + "=" * 70)
-    print("  ✅ All ChangeGuard services are active!")
-    print("  • Operations Dashboard:   http://localhost:3000")
-    print("  • Telemetry API:          http://localhost:8000")
-    print("  • Prometheus Metrics:     http://localhost:8000/metrics")
-    print("  • Change-Risk Engine:     http://localhost:8001")
-    print("  • MCP Tool Server:        http://localhost:8002")
-    print("  • Autonomous SRE Agent:   http://localhost:8003")
-    print("  • RAG Knowledge Engine:   http://localhost:8004")
+    print("  [SUCCESS] All ChangeGuard services are active!")
+    print("  * Operations Dashboard:   http://localhost:3000")
+    print("  * Telemetry API:          http://localhost:8000")
+    print("  * Prometheus Metrics:     http://localhost:8000/metrics")
+    print("  * Change-Risk Engine:     http://localhost:8001")
+    print("  * MCP Tool Server:        http://localhost:8002")
+    print("  * Autonomous SRE Agent:   http://localhost:8003")
+    print("  * RAG Knowledge Engine:   http://localhost:8004")
     print("=" * 70)
     print("Press Ctrl+C to terminate all services.\n")
 
@@ -100,7 +106,7 @@ def main():
         while True:
             for name, p in processes.items():
                 if p.poll() is not None:
-                    print(f"⚠️  Service {name} exited unexpectedly with code {p.returncode}")
+                    print(f"[!] Warning: Service {name} exited unexpectedly with code {p.returncode}")
             time.sleep(2)
     except KeyboardInterrupt:
         shutdown(None, None)
