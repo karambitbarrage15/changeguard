@@ -1,0 +1,396 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>ChangeGuard — AI Change-Intelligence & Autonomous SRE Platform</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700;800&family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="css/style.css">
+</head>
+<body>
+  <div class="app-container">
+    <!-- Top Bar Navigation -->
+    <header class="top-nav">
+      <div class="brand">
+        <div class="brand-logo">
+          <span class="shield-icon">🛡️</span>
+          <span class="pulse-ring"></span>
+        </div>
+        <div class="brand-text">
+          <h1>ChangeGuard</h1>
+          <span class="tagline">DevOps + AI Autonomous SRE Platform</span>
+        </div>
+      </div>
+
+      <!-- Service Health Dots -->
+      <div class="service-indicators" id="serviceIndicators">
+        <div class="indicator-chip" title="Telemetry Service (Port 8000)">
+          <span class="dot healthy" id="dotTelemetry"></span>
+          <span class="lbl">Telemetry</span>
+        </div>
+        <div class="indicator-chip" title="Risk Engine (Port 8001)">
+          <span class="dot healthy" id="dotRisk"></span>
+          <span class="lbl">Risk Engine</span>
+        </div>
+        <div class="indicator-chip" title="MCP Server (Port 8002)">
+          <span class="dot healthy" id="dotMcp"></span>
+          <span class="lbl">MCP Tools</span>
+        </div>
+        <div class="indicator-chip" title="SRE Agent (Port 8003)">
+          <span class="dot healthy" id="dotAgent"></span>
+          <span class="lbl">SRE Agent</span>
+        </div>
+        <div class="indicator-chip" title="RAG Engine (Port 8004)">
+          <span class="dot healthy" id="dotRag"></span>
+          <span class="lbl">RAG KB</span>
+        </div>
+      </div>
+
+      <div class="global-status">
+        <span class="status-pill status-healthy" id="globalStatusPill">
+          <span class="status-dot"></span>
+          <span id="globalStatusText">SYSTEM HEALTHY</span>
+        </span>
+      </div>
+    </header>
+
+    <!-- Main Navigation Tabs -->
+    <nav class="main-tabs">
+      <button class="tab-btn active" data-tab="tab-operations" id="tabBtnOperations">
+        <span class="tab-icon">⚡</span> Runtime & Chaos Studio
+      </button>
+      <button class="tab-btn" data-tab="tab-risk" id="tabBtnRisk">
+        <span class="tab-icon">🔍</span> Pre-Deploy Change Risk
+      </button>
+      <button class="tab-btn" data-tab="tab-agent" id="tabBtnAgent">
+        <span class="tab-icon">🤖</span> Autonomous AI SRE Agent
+        <span class="badge-count" id="agentIncidentBadge" style="display:none;">1</span>
+      </button>
+      <button class="tab-btn" data-tab="tab-playbooks" id="tabBtnPlaybooks">
+        <span class="tab-icon">📚</span> Historical Incident RAG
+      </button>
+    </nav>
+
+    <!-- Tab 1: Runtime & Chaos Studio -->
+    <main class="tab-content active" id="tab-operations">
+      <div class="metrics-grid">
+        <div class="metric-card glass">
+          <div class="metric-header">
+            <span class="metric-title">Throughput</span>
+            <span class="metric-tag">req/s</span>
+          </div>
+          <div class="metric-value" id="valThroughput">285 <span class="unit">rps</span></div>
+          <div class="metric-trend positive" id="trendThroughput">↑ Normal stream</div>
+        </div>
+
+        <div class="metric-card glass">
+          <div class="metric-header">
+            <span class="metric-title">p95 Latency</span>
+            <span class="metric-tag">target &lt; 200ms</span>
+          </div>
+          <div class="metric-value" id="valLatency">42 <span class="unit">ms</span></div>
+          <div class="metric-bar-wrap">
+            <div class="metric-bar" id="barLatency" style="width: 15%;"></div>
+          </div>
+        </div>
+
+        <div class="metric-card glass">
+          <div class="metric-header">
+            <span class="metric-title">5xx Error Rate</span>
+            <span class="metric-tag">SLA 99.9%</span>
+          </div>
+          <div class="metric-value" id="valErrorRate">0.0 <span class="unit">%</span></div>
+          <div class="metric-trend neutral" id="trendErrorRate">0 failures</div>
+        </div>
+
+        <div class="metric-card glass">
+          <div class="metric-header">
+            <span class="metric-title">Memory Allocation</span>
+            <span class="metric-tag">Heap RSS</span>
+          </div>
+          <div class="metric-value" id="valMemory">142 <span class="unit">MB</span></div>
+          <div class="metric-bar-wrap">
+            <div class="metric-bar info-bar" id="barMemory" style="width: 25%;"></div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Chaos Engineering Console & Live Stream -->
+      <div class="operations-layout">
+        <div class="panel glass chaos-panel">
+          <div class="panel-header">
+            <h3>💥 Chaos Engineering Injection Studio</h3>
+            <span class="badge warning-badge">Production Fault Injection</span>
+          </div>
+          <p class="panel-desc">Simulate realistic production degradation scenarios on the connected-vehicle telemetry pipeline to test automated AI detection.</p>
+
+          <div class="chaos-buttons-grid">
+            <button class="chaos-btn chaos-latency" id="btnChaosLatency">
+              <span class="btn-icon">⏱️</span>
+              <div class="btn-text">
+                <strong>Inject Latency Spike</strong>
+                <span>+2500ms delay on vehicle ingest</span>
+              </div>
+            </button>
+
+            <button class="chaos-btn chaos-error" id="btnChaosError">
+              <span class="btn-icon">⚠️</span>
+              <div class="btn-text">
+                <strong>Inject 50% 5xx Failures</strong>
+                <span>Trigger HTTP 500 error cascade</span>
+              </div>
+            </button>
+
+            <button class="chaos-btn chaos-memory" id="btnChaosMemory">
+              <span class="btn-icon">🌊</span>
+              <div class="btn-text">
+                <strong>Inject Memory Leak</strong>
+                <span>Allocate +150MB unmanaged chunk</span>
+              </div>
+            </button>
+
+            <button class="chaos-btn chaos-reset" id="btnChaosReset">
+              <span class="btn-icon">🔄</span>
+              <div class="btn-text">
+                <strong>Reset All Faults</strong>
+                <span>Restore baseline service health</span>
+              </div>
+            </button>
+          </div>
+
+          <div class="chaos-status-card" id="chaosStatusBox">
+            <div class="status-row">
+              <span>Active Chaos State:</span>
+              <strong id="activeChaosState">Baseline Healthy</strong>
+            </div>
+            <div class="status-row">
+              <span>Simulated Incidents Injected:</span>
+              <span id="chaosIncidentCount">0</span>
+            </div>
+          </div>
+        </div>
+
+        <!-- Live Telemetry Stream -->
+        <div class="panel glass telemetry-panel">
+          <div class="panel-header">
+            <h3>📡 Connected Fleet Telemetry Stream</h3>
+            <span class="live-dot-badge"><span class="pulsing-dot"></span> LIVE 2s</span>
+          </div>
+          <div class="telemetry-table-wrap">
+            <table class="telemetry-table" id="telemetryTable">
+              <thead>
+                <tr>
+                  <th>VIN</th>
+                  <th>Fleet</th>
+                  <th>Speed</th>
+                  <th>Battery SoC</th>
+                  <th>Firmware</th>
+                  <th>Latency</th>
+                </tr>
+              </thead>
+              <tbody id="telemetryBody">
+                <!-- Dynamically populated -->
+              </tbody>
+            </table>
+          </div>
+        </div>
+      </div>
+    </main>
+
+    <!-- Tab 2: Pre-Deploy Change Risk -->
+    <main class="tab-content" id="tab-risk">
+      <div class="risk-layout">
+        <!-- Input Column -->
+        <div class="panel glass risk-input-panel">
+          <div class="panel-header">
+            <h3>📄 Pull Request Diff Analyzer</h3>
+            <span class="badge info-badge">Pre-Deployment Gate</span>
+          </div>
+          
+          <div class="sample-picker">
+            <label>Load Sample Scenario:</label>
+            <div class="sample-pills">
+              <button class="pill-btn active" id="btnSampleQuery">Unbounded Query & Sleep</button>
+              <button class="pill-btn" id="btnSampleMemory">Memory Buffer Leak</button>
+              <button class="pill-btn" id="btnSampleDocs">Safe Documentation</button>
+            </div>
+          </div>
+
+          <div class="form-group">
+            <label for="commitMessageInput">Commit Message</label>
+            <input type="text" id="commitMessageInput" value="feat(telemetry): add batch historical vehicle lookups" class="glass-input">
+          </div>
+
+          <div class="form-group">
+            <label for="diffTextInput">Git Unified Diff</label>
+            <textarea id="diffTextInput" rows="11" class="glass-textarea" placeholder="Paste git diff here..."></textarea>
+          </div>
+
+          <button class="primary-btn glow" id="btnAnalyzeRisk">
+            <span class="btn-icon">⚡</span> Run AI Change-Risk Analysis
+          </button>
+        </div>
+
+        <!-- Risk Output Column -->
+        <div class="panel glass risk-results-panel" id="riskResultsPanel">
+          <div class="panel-header">
+            <h3>🛡️ ChangeGuard Safety Assessment</h3>
+            <span class="badge" id="riskTierBadge">ANALYSIS PENDING</span>
+          </div>
+
+          <div class="risk-score-display">
+            <div class="score-circle" id="riskScoreCircle">
+              <svg viewBox="0 0 100 100">
+                <circle class="circle-bg" cx="50" cy="50" r="42"></circle>
+                <circle class="circle-fill" id="circleFill" cx="50" cy="50" r="42"></circle>
+              </svg>
+              <div class="score-number" id="riskScoreNumber">--</div>
+            </div>
+            <div class="score-details">
+              <div class="approval-title" id="approvalStatusTitle">Awaiting Input</div>
+              <p class="approval-desc" id="approvalStatusDesc">Submit a code diff to evaluate blast radius, schema migrations, and deployment risks.</p>
+              <div class="canary-box" id="canaryStrategyBox" style="display:none;">
+                <span class="canary-lbl">Recommended Canary Strategy:</span>
+                <span class="canary-val" id="canaryStrategyVal">Standard Rolling</span>
+              </div>
+            </div>
+          </div>
+
+          <!-- Risk Factors Breakdown -->
+          <div class="risk-breakdown-section">
+            <h4>Identified Risk Factors</h4>
+            <div class="factors-list" id="factorsList">
+              <div class="empty-state">No factors analyzed yet.</div>
+            </div>
+          </div>
+
+          <!-- Blast Radius Topology -->
+          <div class="blast-radius-section">
+            <h4>Blast Radius & Affected Services</h4>
+            <div class="affected-chips" id="affectedServicesList">
+              <!-- Dynamically populated -->
+            </div>
+          </div>
+
+          <!-- SRE Recommendations -->
+          <div class="recommendations-section">
+            <h4>Safety Recommendations</h4>
+            <ul class="recs-list" id="recommendationsList">
+              <!-- Dynamically populated -->
+            </ul>
+          </div>
+        </div>
+      </div>
+    </main>
+
+    <!-- Tab 3: Autonomous AI SRE Agent -->
+    <main class="tab-content" id="tab-agent">
+      <div class="agent-layout">
+        <!-- Agent Stream Column -->
+        <div class="panel glass agent-terminal-panel">
+          <div class="panel-header">
+            <div class="agent-title-wrap">
+              <span class="agent-avatar">🤖</span>
+              <div>
+                <h3>Autonomous SRE Agent Investigation Loop</h3>
+                <span class="agent-sub">Powered by MCP Protocol & Vectorized RAG</span>
+              </div>
+            </div>
+            <button class="primary-btn pulse-glow" id="btnTriggerInvestigation">
+              <span>🚨</span> Trigger Autonomous Investigation
+            </button>
+          </div>
+
+          <!-- Live Terminal Thought Stream -->
+          <div class="agent-terminal" id="agentTerminal">
+            <div class="terminal-line system-line">
+              <span class="prompt-symbol">&gt;</span> ChangeGuard SRE Agent initialized. Watching telemetry metrics and Prometheus alerts.
+            </div>
+            <div class="terminal-line idle-line">
+              <span class="prompt-symbol">&gt;</span> Ready. Trigger chaos injection in Tab 1, or click "Trigger Autonomous Investigation" above.
+            </div>
+          </div>
+        </div>
+
+        <!-- RCA & Remediation Card -->
+        <div class="panel glass rca-panel" id="rcaCardPanel">
+          <div class="panel-header">
+            <h3>📋 Root Cause Analysis & Remediation</h3>
+            <span class="badge" id="rcaStatusBadge">NO ACTIVE INCIDENT</span>
+          </div>
+
+          <div class="rca-empty-state" id="rcaEmptyState">
+            <div class="rca-icon">🔍</div>
+            <p>No active investigation running. When an alert fires, the AI agent will autonomously query MCP tools, correlate logs and Git commits, match historical playbooks, and formulate remediation here.</p>
+          </div>
+
+          <div class="rca-content" id="rcaContent" style="display:none;">
+            <div class="rca-field">
+              <span class="rca-label">Incident ID & Severity:</span>
+              <div class="rca-val" id="rcaIncidentMeta"><span class="badge critical-badge">P1</span> INC-20261030</div>
+            </div>
+
+            <div class="rca-field">
+              <span class="rca-label">Primary Root Cause:</span>
+              <div class="rca-val highlight-cause" id="rcaPrimaryCause">Synchronous blocking latency injected on request pipeline.</div>
+            </div>
+
+            <div class="rca-field">
+              <span class="rca-label">Historical RAG Correlation:</span>
+              <div class="rca-val rca-rag-box" id="rcaRagBox">
+                <strong id="rcaRagTitle">P1: Latency Degradation in California Fleet</strong>
+                <span class="rag-badge" id="rcaRagConfidence">94% Match</span>
+                <p id="rcaRagRemediation">Rollback Git revision and verify worker thread normalization.</p>
+              </div>
+            </div>
+
+            <div class="rca-field">
+              <span class="rca-label">Remediation Action:</span>
+              <div class="rca-val rollback-proposal" id="rcaRollbackProposal">
+                <span>Proposed Action: Automated GitOps Rollback to revision <code>v2.4.0-stable</code></span>
+              </div>
+            </div>
+
+            <!-- Human-in-the-Loop Action Button -->
+            <div class="remediation-actions">
+              <button class="primary-btn success-btn glow" id="btnApproveRollback">
+                <span class="btn-icon">✅</span> Approve & Execute GitOps Rollback
+              </button>
+            </div>
+
+            <div class="recovery-verification" id="recoveryBox" style="display:none;">
+              <span class="verify-icon">🎉</span>
+              <div>
+                <strong>Recovery Verified!</strong>
+                <p id="recoveryDetails">Service latency restored to &lt; 50ms, error rate 0.0%, all health checks green.</p>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </main>
+
+    <!-- Tab 4: Historical Incident Playbooks (RAG) -->
+    <main class="tab-content" id="tab-playbooks">
+      <div class="panel glass playbooks-panel">
+        <div class="panel-header">
+          <h3>📚 RAG Incident Knowledge Base & Post-Mortems</h3>
+          <span class="badge info-badge">Vectorized Knowledge Base</span>
+        </div>
+        <p class="panel-desc">Curated post-mortems and incident resolution runbooks indexed in the RAG vector store for instant agent similarity matching.</p>
+
+        <div class="kb-grid" id="kbGrid">
+          <!-- Dynamically populated from /rag/postmortems -->
+        </div>
+      </div>
+    </main>
+  </div>
+
+  <script src="js/app.js"></script>
+  <script src="js/metrics.js"></script>
+  <script src="js/risk_panel.js"></script>
+  <script src="js/agent_stream.js"></script>
+</body>
+</html>
