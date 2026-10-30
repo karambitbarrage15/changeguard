@@ -1,0 +1,32 @@
+groups:
+  - name: changeguard_telemetry_alerts
+    rules:
+      - alert: HighLatencyDegradation
+        expr: changeguard_request_latency_seconds{quantile="0.95"} > 1.5
+        for: 5s
+        labels:
+          severity: critical
+          service: connected-vehicle-telemetry
+        annotations:
+          summary: "Vehicle telemetry p95 latency exceeds 1.5s threshold"
+          description: "High latency detected in telemetry processing pipeline. Potential queue congestion or database lock."
+
+      - alert: HighErrorRateSpike
+        expr: rate(changeguard_requests_total{status="500"}[30s]) / rate(changeguard_requests_total[30s]) > 0.15
+        for: 5s
+        labels:
+          severity: critical
+          service: connected-vehicle-telemetry
+        annotations:
+          summary: "Vehicle telemetry 5xx error rate exceeded 15%"
+          description: "Service is rejecting or failing telemetry events at elevated failure rate."
+
+      - alert: CriticalMemoryExhaustion
+        expr: changeguard_memory_usage_bytes > 524288000  # 500MB
+        for: 10s
+        labels:
+          severity: warning
+          service: connected-vehicle-telemetry
+        annotations:
+          summary: "Memory consumption approaching OOM threshold"
+          description: "Memory leak detected in telemetry streaming buffer."

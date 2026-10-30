@@ -1,0 +1,124 @@
+{
+  "annotations": { "list": [] },
+  "editable": true,
+  "fiscalYearStartMonth": 0,
+  "graphTooltip": 0,
+  "id": null,
+  "links": [],
+  "liveNow": true,
+  "panels": [
+    {
+      "collapsed": false,
+      "gridPos": { "h": 8, "w": 6, "x": 0, "y": 0 },
+      "id": 1,
+      "title": "Throughput (req/s)",
+      "type": "stat",
+      "targets": [
+        {
+          "expr": "sum(rate(changeguard_requests_total[30s]))",
+          "refId": "A"
+        }
+      ],
+      "fieldConfig": {
+        "defaults": {
+          "color": { "mode": "palette-classic" },
+          "unit": "reqps"
+        }
+      }
+    },
+    {
+      "collapsed": false,
+      "gridPos": { "h": 8, "w": 6, "x": 6, "y": 0 },
+      "id": 2,
+      "title": "p95 Latency (s)",
+      "type": "gauge",
+      "targets": [
+        {
+          "expr": "changeguard_request_latency_seconds{quantile=\"0.95\"}",
+          "refId": "A"
+        }
+      ],
+      "fieldConfig": {
+        "defaults": {
+          "max": 5,
+          "min": 0,
+          "thresholds": {
+            "mode": "absolute",
+            "steps": [
+              { "color": "green", "value": null },
+              { "color": "orange", "value": 1.0 },
+              { "color": "red", "value": 2.0 }
+            ]
+          },
+          "unit": "s"
+        }
+      }
+    },
+    {
+      "collapsed": false,
+      "gridPos": { "h": 8, "w": 6, "x": 12, "y": 0 },
+      "id": 3,
+      "title": "Error Rate (%)",
+      "type": "stat",
+      "targets": [
+        {
+          "expr": "100 * (sum(rate(changeguard_requests_total{status=\"500\"}[30s])) or vector(0)) / (sum(rate(changeguard_requests_total[30s])) or vector(1))",
+          "refId": "A"
+        }
+      ],
+      "fieldConfig": {
+        "defaults": {
+          "color": { "mode": "thresholds" },
+          "thresholds": {
+            "mode": "absolute",
+            "steps": [
+              { "color": "green", "value": null },
+              { "color": "orange", "value": 5 },
+              { "color": "red", "value": 15 }
+            ]
+          },
+          "unit": "percent"
+        }
+      }
+    },
+    {
+      "collapsed": false,
+      "gridPos": { "h": 8, "w": 6, "x": 18, "y": 0 },
+      "id": 4,
+      "title": "Memory Usage (MB)",
+      "type": "stat",
+      "targets": [
+        {
+          "expr": "changeguard_memory_usage_bytes / 1048576",
+          "refId": "A"
+        }
+      ],
+      "fieldConfig": {
+        "defaults": {
+          "color": { "mode": "palette-classic" },
+          "unit": "decmbytes"
+        }
+      }
+    },
+    {
+      "collapsed": false,
+      "gridPos": { "h": 9, "w": 24, "x": 0, "y": 8 },
+      "id": 5,
+      "title": "Telemetry Latency Trend (p50, p95, p99)",
+      "type": "timeseries",
+      "targets": [
+        { "expr": "changeguard_request_latency_seconds{quantile=\"0.5\"}", "legendFormat": "p50", "refId": "A" },
+        { "expr": "changeguard_request_latency_seconds{quantile=\"0.95\"}", "legendFormat": "p95", "refId": "B" },
+        { "expr": "changeguard_request_latency_seconds{quantile=\"0.99\"}", "legendFormat": "p99", "refId": "C" }
+      ]
+    }
+  ],
+  "schemaVersion": 39,
+  "tags": ["changeguard", "telemetry"],
+  "time": { "from": "now-15m", "to": "now" },
+  "timepicker": { "refresh_intervals": ["1s", "5s", "10s"] },
+  "timezone": "browser",
+  "title": "Connected-Vehicle Telemetry Health",
+  "uid": "changeguard-telemetry",
+  "version": 1
+}
